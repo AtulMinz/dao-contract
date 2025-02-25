@@ -34,10 +34,6 @@ contract DAOTokenTest is Test {
         bytes32 proposerRole = timelock.PROPOSER_ROLE();
         bytes32 executorRole = timelock.EXECUTOR_ROLE();
         bytes32 adminRole = timelock.DEFAULT_ADMIN_ROLE();
-
-        timelock.grantRole(proposerRole, address(fundDao));
-        timelock.grantRole(executorRole, address(0));
-        timelock.revokeRole(adminRole, msg.sender);
     }
 
     function testMintToken() external {
