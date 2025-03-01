@@ -40,4 +40,6 @@ contract DAOTokenTest is Test {
         vm.prank(USER);
         token.mint(USER, 100e18);
     }
+
+    function testCreateProposal() external {}
 }
