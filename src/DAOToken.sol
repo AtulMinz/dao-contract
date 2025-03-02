@@ -8,7 +8,6 @@ import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20P
 import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 
 contract DAOToken is ERC20, ERC20Votes, ERC20Permit {
-
     constructor() ERC20("DAOToken", "DT") ERC20Permit("DAOTOken") {}
 
     function mint(address to, uint256 amount) public {
@@ -21,7 +20,7 @@ contract DAOToken is ERC20, ERC20Votes, ERC20Permit {
 
     function _afterTokenTransfer(address from, address to, uint256 amount) internal {}
 
-    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns(uint256) {
+    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
         super.nonces(owner);
     }
 }
