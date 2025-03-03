@@ -31,9 +31,9 @@ contract DAOTokenTest is Test {
         timelock = new TimeLock(MIN_DELAY, proposers, executors);
         fundDao = new FundDAO(token, timelock);
 
-        bytes32 proposerRole = timelock.PROPOSER_ROLE();
-        bytes32 executorRole = timelock.EXECUTOR_ROLE();
-        bytes32 adminRole = timelock.DEFAULT_ADMIN_ROLE();
+        // bytes32 proposerRole = timelock.PROPOSER_ROLE();
+        // bytes32 executorRole = timelock.EXECUTOR_ROLE();
+        // bytes32 adminRole = timelock.DEFAULT_ADMIN_ROLE();
     }
 
     function testMintToken() external {
@@ -61,6 +61,11 @@ contract DAOTokenTest is Test {
         assertEq(uint256(fundDao.state(proposalId)), uint256(0), "Proposal should be in pending state");
 
         assertEq(fundDao.proposalThreshold(), 0, "Proposal threshold should be 0");
+    }
+
+    function testVotingDelay() external view {
+        uint256 delay = fundDao.votingDelay();
+        assertEq(delay, 300, "Voting Delay");
     }
 
     function testActiveProposal() external {
