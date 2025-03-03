@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.22;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {FundDAO} from "../src/FundDAO.sol";
 import {DAOToken} from "../src/DAOToken.sol";
 import {TimeLock} from "../src/TimeLock.sol";
@@ -65,28 +65,33 @@ contract DAOTokenTest is Test {
         assertEq(fundDao.proposalThreshold(), 0, "Proposal threshold should be 0");
     }
 
-    function testProposalCreated() external {
+    function testActiveProposal() external {
         vm.prank(USER);
         token.mint(USER, 100e18);
 
         address[] memory targets = new address[](1);
         uint256[] memory values = new uint256[](1);
         bytes[] memory calldatas = new bytes[](1);
-        string memory description = "Proposal Created";
+        string memory description = "Testing Active proposal";
 
-        bytes32 byteDescription = bytes32(abi.encode(description));
+        bytes32 byteDescription = keccak256(bytes(description));
 
         targets[0] = address(token);
         values[0] = 0;
         calldatas[0] = abi.encodeWithSignature("mint(address,uint256)", USER, 100e18);
 
         vm.prank(USER);
-        fundDao.propose(targets, values, calldatas, description);
+        uint256 proposalId = fundDao.propose(targets, values, calldatas, description);
+        uint256 proposalHash = fundDao.hashProposal(targets, values, calldatas, byteDescription);
 
-        uint256 proposalId = fundDao.hashProposal(targets, values, calldatas, byteDescription);
-        vm.expectEmit();
+        console.log("Proposal Hash", proposalHash);
+        console.log("Proposal ID", proposalId);
 
-        vm.prank(USER);
+        assertEq(proposalId, proposalHash, "Proposal ID Mismatch");
+
+        //Active block as time is set to block 300. So in the nest block the status will be active.
+        vm.roll(block.number + 301);
+
         assertEq(uint256(fundDao.state(proposalId)), uint256(1), "Proposal in Active state");
     }
 }
