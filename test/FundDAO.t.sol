@@ -64,4 +64,29 @@ contract DAOTokenTest is Test {
 
         assertEq(fundDao.proposalThreshold(), 0, "Proposal threshold should be 0");
     }
+
+    function testProposalCreated() external {
+        vm.prank(USER);
+        token.mint(USER, 100e18);
+
+        address[] memory targets = new address[](1);
+        uint256[] memory values = new uint256[](1);
+        bytes[] memory calldatas = new bytes[](1);
+        string memory description = "Proposal Created";
+
+        bytes32 byteDescription = bytes32(abi.encode(description));
+
+        targets[0] = address(token);
+        values[0] = 0;
+        calldatas[0] = abi.encodeWithSignature("mint(address,uint256)", USER, 100e18);
+
+        vm.prank(USER);
+        fundDao.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = fundDao.hashProposal(targets, values, calldatas, byteDescription);
+        vm.expectEmit();
+
+        vm.prank(USER);
+        assertEq(uint256(fundDao.state(proposalId)), uint256(1), "Proposal in Active state");
+    }
 }
