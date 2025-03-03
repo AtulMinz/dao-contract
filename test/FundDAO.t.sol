@@ -45,8 +45,6 @@ contract DAOTokenTest is Test {
         vm.prank(USER);
         token.mint(USER, 100e18);
 
-        iGovernor = IGovernor(address(fundDao));
-
         address[] memory targets = new address[](1);
         uint256[] memory values = new uint256[](1);
         bytes[] memory calldatas = new bytes[](1);
