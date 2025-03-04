@@ -25,14 +25,9 @@ contract DAOTokenTest is Test {
 
     function setUp() public {
         token = new DAOToken();
-
-        vm.prank(USER);
         timelock = new TimeLock(MIN_DELAY, proposers, executors);
         fundDao = new FundDAO(token, timelock);
 
-        // bytes32 proposerRole = timelock.PROPOSER_ROLE();
-        // bytes32 executorRole = timelock.EXECUTOR_ROLE();
-        // bytes32 adminRole = timelock.DEFAULT_ADMIN_ROLE();
     }
 
     function testMintToken() external {
@@ -111,10 +106,46 @@ contract DAOTokenTest is Test {
         token.delegate(USER);
         uint256 delegrationBlock = block.number;
 
-
         vm.roll(block.number + 301);
         uint256 userVotes = fundDao.getVotes(USER, delegrationBlock);
         console.log(userVotes);
         assertEq(userVotes, 100e18, "USER should have 100e18 votes after delegate block");
+    }
+
+    function testUserVoteConfirmed() external {
+        vm.prank(USER);
+        token.mint(USER, 100e18);
+        vm.prank(USER);
+        token.delegate(USER);
+
+        uint256 delegateblock = block.number;
+
+        address[] memory targets = new address[](1);
+        uint256[] memory values = new uint256[](1);
+        bytes[] memory calldatas = new bytes[](1);
+        string memory description = "Testing Voting succeed";
+
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        targets[0] = address(token);
+        values[0] = 0;
+        calldatas[0] = abi.encodeWithSignature("mint(address,uint256)", USER, 100e18);
+
+        vm.prank(USER);
+        uint256 proposalId = fundDao.propose(targets, values, calldatas, description);
+        uint256 proposalHash = fundDao.hashProposal(targets, values, calldatas, descriptionHash);
+
+        assertEq(proposalId, proposalHash, "Proposal ID Mismatch");
+
+        vm.roll(delegateblock + 301);
+        assertEq(uint256(fundDao.state(proposalId)), uint256(1), "Proposal Active");
+
+        vm.prank(USER);
+        fundDao.castVote(proposalId, 1);
+        assertTrue(fundDao.hasVoted(proposalId, USER), "USER should have voted");
+
+        vm.roll(block.number + 300);
+        console.log(uint256(proposalId));
+        assertEq(uint256(fundDao.state(proposalId)), 4, "Proposal Passed");
     }
 }
