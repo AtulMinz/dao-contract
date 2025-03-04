@@ -27,7 +27,6 @@ contract DAOTokenTest is Test {
         token = new DAOToken();
         timelock = new TimeLock(MIN_DELAY, proposers, executors);
         fundDao = new FundDAO(token, timelock);
-
     }
 
     function testMintToken() external {
