@@ -25,7 +25,6 @@ contract DAOTokenTest is Test {
 
     function setUp() public {
         token = new DAOToken();
-        token.mint(USER, 100e18);
 
         vm.prank(USER);
         timelock = new TimeLock(MIN_DELAY, proposers, executors);
@@ -68,6 +67,11 @@ contract DAOTokenTest is Test {
         assertEq(delay, 300, "Voting Delay");
     }
 
+    function testVotingPeriod() external view {
+        uint256 votingPeriod = fundDao.votingPeriod();
+        console.log(votingPeriod);
+    }
+
     function testActiveProposal() external {
         vm.prank(USER);
         token.mint(USER, 100e18);
@@ -96,5 +100,21 @@ contract DAOTokenTest is Test {
         vm.roll(block.number + 301);
 
         assertEq(uint256(fundDao.state(proposalId)), uint256(1), "Proposal in Active state");
+    }
+
+    function testVotingPower() external {
+        vm.prank(USER);
+        token.mint(USER, 100e18);
+        console.log(token.balanceOf(USER));
+
+        vm.prank(USER);
+        token.delegate(USER);
+        uint256 delegrationBlock = block.number;
+
+
+        vm.roll(block.number + 301);
+        uint256 userVotes = fundDao.getVotes(USER, delegrationBlock);
+        console.log(userVotes);
+        assertEq(userVotes, 100e18, "USER should have 100e18 votes after delegate block");
     }
 }
