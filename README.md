@@ -1,4 +1,4 @@
-## DAO Contract
+## Foundry DAO Contract
 
 Contract Address Base Sepolia:
 - ``0xEA80faa40D6105e6c36C9662bE1434C82c2744c0``
